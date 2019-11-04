@@ -4,9 +4,9 @@
 
 require 'bundler'
 
-Bundler.require
+Dir.chdir(__dir__) { Bundler.require }
 
-require './toggl.rb'
+require_relative 'toggl.rb'
 
 SINCE = ARGV[0]
 UNTIL = ARGV[1]
