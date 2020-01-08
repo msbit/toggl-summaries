@@ -1,6 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    byebug (11.0.1)
     csv (3.1.2)
     dotenv (2.7.5)
     httparty (0.17.1)
@@ -16,6 +17,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  byebug (~> 11.0.0)
   csv (~> 3.1.0)
   dotenv (~> 2.7.0)
   httparty (~> 0.17.0)
