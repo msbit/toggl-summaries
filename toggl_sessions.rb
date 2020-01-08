@@ -11,6 +11,7 @@ require_relative 'toggl.rb'
 SINCE = ARGV[0]
 UNTIL = ARGV[1]
 DATABASE = ARGV[2]
+TASK = ARGV[3]
 
 response = Toggl.get(SINCE, UNTIL)
 database = SQLite3::Database.new DATABASE
@@ -23,6 +24,7 @@ rows.shift
 until rows.empty?
   row = rows.shift
   task = row[4]
+  next unless TASK.nil? || task == TASK
 
   # sessions
   sessions[task] = [] unless sessions.key?(task)
