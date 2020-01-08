@@ -12,7 +12,7 @@ HOURS_PER_DAY = 8.0
 
 SINCE = ARGV[0]
 UNTIL = ARGV[1]
-TASK = ARGV[2]
+TAG = ARGV[2]
 
 response = Toggl.get(SINCE, UNTIL)
 
@@ -23,8 +23,12 @@ rows.shift
 
 until rows.empty?
   row = rows.shift
+  tag = row[12]
+  unless TAG.nil?
+    next if tag.nil? || !tag.include?(TAG)
+  end
+
   task = row[4]
-  next unless TASK.nil? || task == TASK
 
   duration = row[11].split(':')
 
