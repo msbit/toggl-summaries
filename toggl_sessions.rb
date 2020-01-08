@@ -18,7 +18,7 @@ database = SQLite3::Database.new DATABASE
 
 sessions = {}
 
-rows = CSV.parse(response.body)
+rows = response.parsed_response
 rows.shift
 
 until rows.empty?

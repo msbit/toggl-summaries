@@ -18,7 +18,7 @@ response = Toggl.get(SINCE, UNTIL)
 
 totals = {}
 
-rows = CSV.parse(response.body)
+rows = response.parsed_response
 rows.shift
 
 until rows.empty?
