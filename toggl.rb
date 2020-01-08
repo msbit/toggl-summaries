@@ -4,6 +4,10 @@ class Toggl
   def self.get(since_date, until_date)
     HTTParty.get(
       'https://toggl.com/reports/api/v2/details.csv',
+      basic_auth: {
+        username: ENV['API_TOKEN'],
+        password: 'api_token'
+      },
       query: {
         bars_count: '31',
         billable: 'both',
@@ -36,9 +40,6 @@ class Toggl
         user_ids: '',
         with_total_currencies: '1',
         workspace_id: ENV['WORKSPACE_ID']
-      },
-      headers: {
-        Cookie: "report_user=#{ENV['REPORT_USER']}"
       }
     )
   end
