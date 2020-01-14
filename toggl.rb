@@ -55,7 +55,7 @@ class Toggl
       task_ids: '',
       time_format_mode: 'improved',
       until: until_date,
-      user_agent: 'Snowball',
+      user_agent: 'https://github.com/msbit/toggl-summaries',
       user_ids: '',
       with_total_currencies: '1',
       workspace_id: ''
