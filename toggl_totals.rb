@@ -18,18 +18,19 @@ custom_query = {}
 parser = OptionParser.new do |opts|
   opts.on('--since SINCE') { |o| options[:since] = o }
   opts.on('--until UNTIL') { |o| options[:until] = o }
+  opts.on('--workspace WORKSPACE') { |o| custom_query[:workspace_name] = o }
 
   opts.on('--client CLIENT') { |o| custom_query[:client_name] = o }
   opts.on('--project PROJECT') { |o| custom_query[:project_name] = o }
   opts.on('--tag TAG') { |o| custom_query[:tag_name] = o }
   opts.on('--task TASK') { |o| custom_query[:task_name] = o }
-  opts.on('--workspace WORKSPACE') { |o| custom_query[:workspace_name] = o }
 end
 
 parser.parse!
 
 raise OptionParser::MissingArgument, 'since' if options[:since].nil?
 raise OptionParser::MissingArgument, 'until' if options[:until].nil?
+raise OptionParser::MissingArgument, 'workspace' if custom_query[:workspace_name].nil?
 
 response = Toggl.report_details(options[:since], options[:until], custom_query)
 

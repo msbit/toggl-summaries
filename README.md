@@ -2,8 +2,21 @@
 
 ## Toggl Sessions
 
-    toggl_sessions.rb <from-date> <to-date> <database> [<tag>]
+    toggl_sessions.rb --database <database> \
+                      --since <since-date> \
+                      --until <until-date> \
+                      --workspace <workspace-name> \
+                      [--client <client-name>] \
+                      [--project <project-name>] \
+                      [--tag <tag-name>] \
+                      [--task <task-name>]
 
 ## Toggl Totals
 
-    toggl_totals.rb <from-date> <to-date> [<tag>]
+    toggl_totals.rb --since <since-date> \
+                    --until <until-date> \
+                    --workspace <workspace-name> \
+                    [--client <client-name>] \
+                    [--project <project-name>] \
+                    [--tag <tag-name>] \
+                    [--task <task-name>]
