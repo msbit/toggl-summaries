@@ -25,6 +25,8 @@ parser = OptionParser.new do |opts|
   opts.on('--workspace WORKSPACE') { |o| custom_query[:workspace_name] = o }
 end
 
+parser.parse!
+
 raise OptionParser::MissingArgument, 'database' if options[:database].nil?
 raise OptionParser::MissingArgument, 'since' if options[:since].nil?
 raise OptionParser::MissingArgument, 'until' if options[:until].nil?
