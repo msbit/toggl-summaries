@@ -26,7 +26,15 @@ parser.parse!
 raise OptionParser::MissingArgument, 'since' if options[:since].nil?
 raise OptionParser::MissingArgument, 'until' if options[:until].nil?
 
-response = Toggl.get(options[:since], options[:until])
+custom_query = {}
+
+if options.key?:tag
+  tags = Toggl.tags.parsed_response
+  tag = tags.find { |t| t['name'] == options[:tag] }
+  custom_query[:tag_ids] = tag['id'] unless tag.nil?
+end
+
+response = Toggl.report_details(options[:since], options[:until], custom_query)
 
 totals = {}
 
@@ -35,11 +43,6 @@ rows.shift
 
 until rows.empty?
   row = rows.shift
-  tag = row[12]
-  unless options[:tag].nil?
-    next if tag.nil? || !tag.include?(options[:tag])
-  end
-
   task = row[4]
 
   duration = row[11].split(':')
