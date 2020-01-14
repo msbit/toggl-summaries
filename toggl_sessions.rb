@@ -11,26 +11,23 @@ Dir.chdir(__dir__) { Bundler.require }
 require_relative 'toggl.rb'
 
 options = {}
+custom_query = {}
 
 parser = OptionParser.new do |opts|
   opts.on('--database DATABASE') { |o| options[:database] = o }
   opts.on('--since SINCE') { |o| options[:since] = o }
   opts.on('--until UNTIL') { |o| options[:until] = o }
 
-  opts.on('--tag TAG') { |o| options[:tag] = o }
+  opts.on('--client CLIENT') { |o| custom_query[:client_name] = o }
+  opts.on('--project PROJECT') { |o| custom_query[:project_name] = o }
+  opts.on('--tag TAG') { |o| custom_query[:tag_name] = o }
+  opts.on('--task TASK') { |o| custom_query[:task_name] = o }
+  opts.on('--workspace WORKSPACE') { |o| custom_query[:workspace_name] = o }
 end
 
 raise OptionParser::MissingArgument, 'database' if options[:database].nil?
 raise OptionParser::MissingArgument, 'since' if options[:since].nil?
 raise OptionParser::MissingArgument, 'until' if options[:until].nil?
-
-custom_query = {}
-
-if options.key?:tag
-  tags = Toggl.tags.parsed_response
-  tag = tags.find { |t| t['name'] == options[:tag] }
-  custom_query[:tag_ids] = tag['id'] unless tag.nil?
-end
 
 response = Toggl.report_details(options[:since], options[:until], custom_query)
 database = SQLite3::Database.new options[:database]
@@ -42,7 +39,7 @@ rows.shift
 
 until rows.empty?
   row = rows.shift
-  task = row[4]
+  task = row[4] || 'UNDEFINED'
 
   # sessions
   sessions[task] = [] unless sessions.key?(task)

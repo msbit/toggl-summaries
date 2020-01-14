@@ -6,6 +6,27 @@ class Toggl
   base_uri 'https://toggl.com'
 
   def self.report_details(since_date, until_date, custom_query = {})
+    if client_name = custom_query.delete(:client_name)
+      client = clients.parsed_response.find {|c| c['name'] == client_name }
+      custom_query[:client_ids] = client['id'] unless client.nil?
+    end
+    if project_name = custom_query.delete(:project_name)
+      project = projects.parsed_response.find {|p| p['name'] == project_name }
+      custom_query[:project_ids] = project['id'] unless project.nil?
+    end
+    if tag_name = custom_query.delete(:tag_name)
+      tag = tags.parsed_response.find {|t| t['name'] == tag_name }
+      custom_query[:tag_ids] = tag['id'] unless tag.nil?
+    end
+    if task_name = custom_query.delete(:task_name)
+      task = tasks.parsed_response.find {|t| t['name'] == task_name }
+      custom_query[:task_ids] = task['id'] unless task.nil?
+    end
+    if workspace_name = custom_query.delete(:workspace_name)
+      workspace = workspaces.parsed_response.find {|t| t['name'] == workspace_name }
+      custom_query[:workspace_id] = workspace['id'] unless workspace.nil?
+    end
+
     query = {
       bars_count: '31',
       billable: 'both',
@@ -22,7 +43,7 @@ class Toggl
       order_field: 'date',
       page: '1',
       period: 'prevWeek',
-      project_ids: ENV['PROJECT_ID'],
+      project_ids: '',
       rounding: 'Off',
       since: since_date,
       sortBy: 'date',
@@ -37,7 +58,7 @@ class Toggl
       user_agent: 'Snowball',
       user_ids: '',
       with_total_currencies: '1',
-      workspace_id: ENV['WORKSPACE_ID']
+      workspace_id: ''
     }.merge(custom_query)
 
     get(
@@ -50,13 +71,17 @@ class Toggl
     )
   end
 
-  def self.tags
-    get(
-      '/api/v9/me/tags',
-      basic_auth: {
-        username: ENV['API_TOKEN'],
-        password: 'api_token'
-      }
-    )
+  class << self
+    [:clients, :projects, :tags, :tasks, :workspaces].each do |attribute|
+      define_method attribute do
+        get(
+          "/api/v9/me/#{attribute}",
+          basic_auth: {
+            username: ENV['API_TOKEN'],
+            password: 'api_token'
+          }
+        )
+      end
+    end
   end
 end
