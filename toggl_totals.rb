@@ -15,10 +15,10 @@ HOURS_PER_DAY = 8.0
 options = {}
 
 parser = OptionParser.new do |opts|
-  opts.on('-s', '--since SINCE') { |o| options[:since] = o }
-  opts.on('-u', '--until UNTIL') { |o| options[:until] = o }
+  opts.on('--since SINCE') { |o| options[:since] = o }
+  opts.on('--until UNTIL') { |o| options[:until] = o }
 
-  opts.on('-t', '--tag TAG') { |o| options[:tag] = o }
+  opts.on('--tag TAG') { |o| options[:tag] = o }
 end
 
 parser.parse!
