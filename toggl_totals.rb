@@ -2,6 +2,8 @@
 
 # frozen_string_literal: true
 
+require 'optparse'
+
 require 'bundler'
 
 Dir.chdir(__dir__) { Bundler.require }
@@ -10,11 +12,21 @@ require_relative 'toggl.rb'
 
 HOURS_PER_DAY = 8.0
 
-SINCE = ARGV[0]
-UNTIL = ARGV[1]
-TAG = ARGV[2]
+options = {}
 
-response = Toggl.get(SINCE, UNTIL)
+parser = OptionParser.new do |opts|
+  opts.on('-s', '--since SINCE') { |o| options[:since] = o }
+  opts.on('-u', '--until UNTIL') { |o| options[:until] = o }
+
+  opts.on('-t', '--tag TAG') { |o| options[:tag] = o }
+end
+
+parser.parse!
+
+raise OptionParser::MissingArgument, 'since' if options[:since].nil?
+raise OptionParser::MissingArgument, 'until' if options[:until].nil?
+
+response = Toggl.get(options[:since], options[:until])
 
 totals = {}
 
@@ -24,8 +36,8 @@ rows.shift
 until rows.empty?
   row = rows.shift
   tag = row[12]
-  unless TAG.nil?
-    next if tag.nil? || !tag.include?(TAG)
+  unless options[:tag].nil?
+    next if tag.nil? || !tag.include?(options[:tag])
   end
 
   task = row[4]

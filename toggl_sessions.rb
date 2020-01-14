@@ -2,19 +2,30 @@
 
 # frozen_string_literal: true
 
+require 'optparse'
+
 require 'bundler'
 
 Dir.chdir(__dir__) { Bundler.require }
 
 require_relative 'toggl.rb'
 
-SINCE = ARGV[0]
-UNTIL = ARGV[1]
-DATABASE = ARGV[2]
-TAG = ARGV[3]
+options = {}
 
-response = Toggl.get(SINCE, UNTIL)
-database = SQLite3::Database.new DATABASE
+parser = OptionParser.new do |opts|
+  opts.on('-d', '--database DATABASE') { |o| options[:database] = o }
+  opts.on('-s', '--since SINCE') { |o| options[:since] = o }
+  opts.on('-u', '--until UNTIL') { |o| options[:until] = o }
+
+  opts.on('-t', '--tag TAG') { |o| options[:tag] = o }
+end
+
+raise OptionParser::MissingArgument, 'database' if options[:database].nil?
+raise OptionParser::MissingArgument, 'since' if options[:since].nil?
+raise OptionParser::MissingArgument, 'until' if options[:until].nil?
+
+response = Toggl.get(options[:since], options[:until])
+database = SQLite3::Database.new options[:database]
 
 sessions = {}
 
@@ -24,8 +35,8 @@ rows.shift
 until rows.empty?
   row = rows.shift
   tag = row[12]
-  unless TAG.nil?
-    next if tag.nil? || !tag.include?(TAG)
+  unless options[:tag].nil?
+    next if tag.nil? || !tag.include?(options[:tag])
   end
 
   task = row[4]
@@ -37,7 +48,7 @@ end
 
 database.execute(
   'INSERT INTO job (client, description) VALUES (?, ?)',
-  [ENV['CLIENT_ID'], "BEAT CF Portal (#{SINCE} - #{UNTIL})"]
+  [ENV['CLIENT_ID'], "BEAT CF Portal (#{options[:since]} - #{options[:until]})"]
 )
 result = database.execute('SELECT MAX(id) FROM job')
 job_id = result[0][0]
