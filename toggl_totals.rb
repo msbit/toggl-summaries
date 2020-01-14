@@ -31,7 +31,9 @@ parser.parse!
 
 raise OptionParser::MissingArgument, 'since' if options[:since].nil?
 raise OptionParser::MissingArgument, 'until' if options[:until].nil?
-raise OptionParser::MissingArgument, 'workspace' if custom_query[:workspace_name].nil?
+if custom_query[:workspace_name].nil?
+  raise OptionParser::MissingArgument, 'workspace'
+end
 
 response = Toggl.report_details(options[:since], options[:until], custom_query)
 
