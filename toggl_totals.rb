@@ -20,6 +20,7 @@ parser = OptionParser.new do |opts|
   opts.on('--until UNTIL') { |o| options[:until] = o }
   opts.on('--workspace WORKSPACE') { |o| custom_query[:workspace_name] = o }
 
+  opts.on('--[no-]billable') { |o| custom_query[:billable] = o ? 'yes' : 'no' }
   opts.on('--client CLIENT') { |o| custom_query[:client_name] = o }
   opts.on('--project PROJECT') { |o| custom_query[:project_name] = o }
   opts.on('--tag TAG') { |o| custom_query[:tag_name] = o }

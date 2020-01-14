@@ -6,6 +6,7 @@
                       --since <since-date> \
                       --until <until-date> \
                       --workspace <workspace-name> \
+                      [--[no-]billable] \
                       [--client <client-name>] \
                       [--project <project-name>] \
                       [--tag <tag-name>] \
@@ -16,6 +17,7 @@
     toggl_totals.rb --since <since-date> \
                     --until <until-date> \
                     --workspace <workspace-name> \
+                    [--[no-]billable] \
                     [--client <client-name>] \
                     [--project <project-name>] \
                     [--tag <tag-name>] \
