@@ -7,23 +7,23 @@ class Toggl
 
   def self.report_details(since_date, until_date, custom_query = {})
     if client_name = custom_query.delete(:client_name)
-      client = clients.parsed_response.find {|c| c['name'] == client_name }
+      client = clients.find {|c| c['name'] == client_name }
       custom_query[:client_ids] = client['id'] unless client.nil?
     end
     if project_name = custom_query.delete(:project_name)
-      project = projects.parsed_response.find {|p| p['name'] == project_name }
+      project = projects.find {|p| p['name'] == project_name }
       custom_query[:project_ids] = project['id'] unless project.nil?
     end
     if tag_name = custom_query.delete(:tag_name)
-      tag = tags.parsed_response.find {|t| t['name'] == tag_name }
+      tag = tags.find {|t| t['name'] == tag_name }
       custom_query[:tag_ids] = tag['id'] unless tag.nil?
     end
     if task_name = custom_query.delete(:task_name)
-      task = tasks.parsed_response.find {|t| t['name'] == task_name }
+      task = tasks.find {|t| t['name'] == task_name }
       custom_query[:task_ids] = task['id'] unless task.nil?
     end
     if workspace_name = custom_query.delete(:workspace_name)
-      workspace = workspaces.parsed_response.find {|t| t['name'] == workspace_name }
+      workspace = workspaces.find {|t| t['name'] == workspace_name }
       custom_query[:workspace_id] = workspace['id'] unless workspace.nil?
     end
 
@@ -68,7 +68,7 @@ class Toggl
         password: 'api_token'
       },
       query: query
-    )
+    ).parsed_response
   end
 
   class << self
@@ -80,7 +80,7 @@ class Toggl
             username: ENV['API_TOKEN'],
             password: 'api_token'
           }
-        )
+        ).parsed_response
       end
     end
   end

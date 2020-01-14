@@ -34,7 +34,7 @@ database = SQLite3::Database.new options[:database]
 
 sessions = {}
 
-rows = response.parsed_response
+rows = response
 rows.shift
 
 until rows.empty?

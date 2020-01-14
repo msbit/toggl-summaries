@@ -35,7 +35,7 @@ response = Toggl.report_details(options[:since], options[:until], custom_query)
 
 totals = {}
 
-rows = response.parsed_response
+rows = response
 rows.shift
 
 until rows.empty?
