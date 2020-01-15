@@ -15,6 +15,7 @@ custom_query = {}
 
 parser = OptionParser.new do |opts|
   opts.on('--database DATABASE') { |o| options[:database] = o }
+  opts.on('--name NAME') { |o| options[:name] = o }
   opts.on('--since SINCE') { |o| options[:since] = o }
   opts.on('--until UNTIL') { |o| options[:until] = o }
   opts.on('--workspace WORKSPACE') { |o| custom_query[:workspace_name] = o }
@@ -29,6 +30,7 @@ end
 parser.parse!
 
 raise OptionParser::MissingArgument, 'database' if options[:database].nil?
+raise OptionParser::MissingArgument, 'name' if options[:name].nil?
 raise OptionParser::MissingArgument, 'since' if options[:since].nil?
 raise OptionParser::MissingArgument, 'until' if options[:until].nil?
 if custom_query[:workspace_name].nil?
@@ -54,7 +56,7 @@ end
 
 database.execute(
   'INSERT INTO job (client, description) VALUES (?, ?)',
-  [ENV['CLIENT_ID'], "BEAT CF Portal (#{options[:since]} - #{options[:until]})"]
+  [ENV['CLIENT_ID'], options[:name]]
 )
 result = database.execute('SELECT MAX(id) FROM job')
 job_id = result[0][0]
