@@ -9,6 +9,7 @@
                       --workspace <workspace-name> \
                       [--[no-]billable] \
                       [--client <client-name>] \
+                      [--grouping <grouping>] \
                       [--project <project-name>] \
                       [--tag <tag-name>] \
                       [--task <task-name>]
@@ -20,6 +21,7 @@
                     --workspace <workspace-name> \
                     [--[no-]billable] \
                     [--client <client-name>] \
+                    [--grouping <grouping>] \
                     [--project <project-name>] \
                     [--tag <tag-name>] \
                     [--task <task-name>]
