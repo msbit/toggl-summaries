@@ -17,6 +17,7 @@ custom_query = {}
 
 parser = OptionParser.new do |opts|
   opts.on('--database DATABASE') { |o| options[:database] = o }
+  opts.on('--database-client-id DATABASE-CLIENT-ID') { |o| options[:database_client_id] = o }
   opts.on('--name NAME') { |o| options[:name] = o }
   opts.on('--since SINCE') { |o| options[:since] = o }
   opts.on('--until UNTIL') { |o| options[:until] = o }
@@ -33,6 +34,7 @@ end
 parser.parse!
 
 raise OptionParser::MissingArgument, 'database' if options[:database].nil?
+raise OptionParser::MissingArgument, 'database-client-id' if options[:database_client_id].nil?
 raise OptionParser::MissingArgument, 'name' if options[:name].nil?
 raise OptionParser::MissingArgument, 'since' if options[:since].nil?
 raise OptionParser::MissingArgument, 'until' if options[:until].nil?
@@ -67,7 +69,7 @@ end
 
 database.execute(
   'INSERT INTO job (client, description) VALUES (?, ?)',
-  [ENV['CLIENT_ID'], options[:name]]
+  [options[:database_client_id], options[:name]]
 )
 result = database.execute('SELECT MAX(id) FROM job')
 job_id = result[0][0]
