@@ -44,7 +44,7 @@ rows.shift
 
 until rows.empty?
   row = rows.shift
-  task = row[4] || 'UNDEFINED'
+  task = row[4] || :undefined
   duration = row[11].split(':')
 
   # totals

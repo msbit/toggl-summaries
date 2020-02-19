@@ -47,7 +47,7 @@ rows.shift
 
 until rows.empty?
   row = rows.shift
-  task = row[4] || 'UNDEFINED'
+  task = row[4] || :undefined
 
   # sessions
   sessions[task] = [] unless sessions.key?(task)
