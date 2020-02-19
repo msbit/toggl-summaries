@@ -10,7 +10,9 @@ Dir.chdir(__dir__) { Bundler.require }
 
 require_relative 'toggl.rb'
 
-options = {}
+options = {
+  grouping: 'task'
+}
 custom_query = {}
 
 parser = OptionParser.new do |opts|
@@ -22,6 +24,7 @@ parser = OptionParser.new do |opts|
 
   opts.on('--[no-]billable') { |o| custom_query[:billable] = o ? 'yes' : 'no' }
   opts.on('--client CLIENT') { |o| custom_query[:client_name] = o }
+  opts.on('--grouping GROUPING') { |o| options[:grouping] = o }
   opts.on('--project PROJECT') { |o| custom_query[:project_name] = o }
   opts.on('--tag TAG') { |o| custom_query[:tag_name] = o }
   opts.on('--task TASK') { |o| custom_query[:task_name] = o }
@@ -47,11 +50,19 @@ rows.shift
 
 until rows.empty?
   row = rows.shift
-  task = row[4] || :undefined
+  group = case options[:grouping]
+          when 'task'
+            row[4]
+          when 'description'
+            row[5]
+          else
+            :undefined
+          end
+  group ||= :undefined
 
   # sessions
-  sessions[task] = [] unless sessions.key?(task)
-  sessions[task] << row
+  sessions[group] = [] unless sessions.key?(group)
+  sessions[group] << row
 end
 
 database.execute(
@@ -61,10 +72,10 @@ database.execute(
 result = database.execute('SELECT MAX(id) FROM job')
 job_id = result[0][0]
 
-sessions.each do |task, rows|
+sessions.each do |grouping, rows|
   database.execute(
     'INSERT INTO line_item (job, rate, description, fixed_price, fixed_price_amount) VALUES (?, ?, ?, ?, ?)',
-    [job_id, ENV['RATE_ID'], task, 0, 0]
+    [job_id, ENV['RATE_ID'], grouping, 0, 0]
   )
   result = database.execute('SELECT MAX(id) FROM line_item')
   line_item_id = result[0][0]

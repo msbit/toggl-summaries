@@ -12,7 +12,9 @@ require_relative 'toggl.rb'
 
 HOURS_PER_DAY = 8.0
 
-options = {}
+options = {
+  grouping: 'task'
+}
 custom_query = {}
 
 parser = OptionParser.new do |opts|
@@ -22,6 +24,7 @@ parser = OptionParser.new do |opts|
 
   opts.on('--[no-]billable') { |o| custom_query[:billable] = o ? 'yes' : 'no' }
   opts.on('--client CLIENT') { |o| custom_query[:client_name] = o }
+  opts.on('--grouping GROUPING') { |o| options[:grouping] = o }
   opts.on('--project PROJECT') { |o| custom_query[:project_name] = o }
   opts.on('--tag TAG') { |o| custom_query[:tag_name] = o }
   opts.on('--task TASK') { |o| custom_query[:task_name] = o }
@@ -44,12 +47,20 @@ rows.shift
 
 until rows.empty?
   row = rows.shift
-  task = row[4] || :undefined
+  group = case options[:grouping]
+          when 'task'
+            row[4]
+          when 'description'
+            row[5]
+          else
+            :undefined
+          end
+  group ||= :undefined
   duration = row[11].split(':')
 
   # totals
-  totals[task] = 0 unless totals.key?(task)
-  totals[task] += duration.map(&:to_f).reduce { |a, v| (a * 60) + v }
+  totals[group] = 0 unless totals.key?(group)
+  totals[group] += duration.map(&:to_f).reduce { |a, v| (a * 60) + v }
 end
 
 total = 0
