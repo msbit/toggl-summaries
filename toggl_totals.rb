@@ -53,9 +53,9 @@ until rows.empty?
           when 'description'
             row[5]
           else
-            :undefined
+            'UNDEFINED'
           end
-  group ||= :undefined
+  group ||= 'UNDEFINED'
   duration = row[11].split(':')
 
   # totals

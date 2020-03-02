@@ -58,9 +58,9 @@ until rows.empty?
           when 'description'
             row[5]
           else
-            :undefined
+            'UNDEFINED'
           end
-  group ||= :undefined
+  group ||= 'UNDEFINED'
 
   # sessions
   sessions[group] = [] unless sessions.key?(group)
