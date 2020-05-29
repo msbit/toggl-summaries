@@ -47,14 +47,16 @@ class Toggl
       workspace_id: ''
     }.merge(custom_query)
 
-    get(
+    response = get(
       '/reports/api/v2/details.csv',
       basic_auth: {
         username: ENV['API_TOKEN'],
         password: 'api_token'
       },
       query: query
-    ).parsed_response
+    )
+
+    [response.code, response.parsed_response]
   end
 
   class << self

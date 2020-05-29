@@ -34,7 +34,9 @@ end
 parser.parse!
 
 raise OptionParser::MissingArgument, 'database' if options[:database].nil?
-raise OptionParser::MissingArgument, 'database-client-id' if options[:database_client_id].nil?
+if options[:database_client_id].nil?
+  raise OptionParser::MissingArgument, 'database-client-id'
+end
 raise OptionParser::MissingArgument, 'name' if options[:name].nil?
 raise OptionParser::MissingArgument, 'since' if options[:since].nil?
 raise OptionParser::MissingArgument, 'until' if options[:until].nil?
