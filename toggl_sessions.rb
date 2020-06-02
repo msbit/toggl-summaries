@@ -44,7 +44,19 @@ if custom_query[:workspace_name].nil?
   raise OptionParser::MissingArgument, 'workspace'
 end
 
-response = Toggl.report_details(options[:since], options[:until], custom_query)
+code, response = Toggl.report_details(options[:since], options[:until], custom_query)
+
+if code != 200
+  puts "Error: #{code}"
+
+  if response.is_a?(Hash) && response['error']
+    puts response['error']['message']
+    puts response['error']['tip']
+  end
+
+  exit
+end
+
 database = SQLite3::Database.new options[:database]
 
 sessions = {}
