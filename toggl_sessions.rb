@@ -10,6 +10,39 @@ Dir.chdir(__dir__) { Bundler.require }
 
 require_relative 'toggl.rb'
 
+def job_insert(database, client, description)
+  job_binds = [client, description]
+  database.execute(<<-SQL, job_binds)
+    INSERT INTO job (client, description)
+    VALUES (?, ?)
+  SQL
+  database.execute(<<-SQL)
+    SELECT MAX(id) FROM job
+  SQL
+end
+
+def line_item_insert(database, job, rate, description, fixed_price, fixed_price_amount)
+  line_item_binds = [job, rate, description, fixed_price, fixed_price_amount]
+  database.execute(<<-SQL, line_item_binds)
+    INSERT INTO line_item (job, rate, description, fixed_price, fixed_price_amount)
+    VALUES (?, ?, ?, ?, ?)
+  SQL
+  database.execute(<<-SQL)
+    SELECT MAX(id) FROM line_item
+  SQL
+end
+
+def session_insert(database, line_item, description, start_time, end_time)
+  session_binds = [line_item, description, start_time, end_time]
+  database.execute(<<-SQL, session_binds)
+    INSERT INTO session (line_item, description, start_time, end_time)
+    VALUES (?, ?, ?, ?)
+  SQL
+  database.execute(<<-SQL)
+    SELECT MAX(id) FROM session
+  SQL
+end
+
 options = {
   grouping: 'task'
 }
@@ -17,7 +50,9 @@ custom_query = {}
 
 parser = OptionParser.new do |opts|
   opts.on('--database DATABASE') { |o| options[:database] = o }
-  opts.on('--database-client-id DATABASE-CLIENT-ID') { |o| options[:database_client_id] = o }
+  opts.on('--database-client-id DATABASE-CLIENT-ID') do |o|
+    options[:database_client_id] = o
+  end
   opts.on('--name NAME') { |o| options[:name] = o }
   opts.on('--since SINCE') { |o| options[:since] = o }
   opts.on('--until UNTIL') { |o| options[:until] = o }
@@ -44,7 +79,11 @@ if custom_query[:workspace_name].nil?
   raise OptionParser::MissingArgument, 'workspace'
 end
 
-code, response = Toggl.report_details(options[:since], options[:until], custom_query)
+code, response = Toggl.report_details(
+  options[:since],
+  options[:until],
+  custom_query
+)
 
 if code != 200
   puts "Error: #{code}"
@@ -61,11 +100,10 @@ database = SQLite3::Database.new options[:database]
 
 sessions = {}
 
-rows = response
-rows.shift
+response.shift
 
-until rows.empty?
-  row = rows.shift
+until response.empty?
+  row = response.shift
   group = case options[:grouping]
           when 'task'
             row[4]
@@ -78,30 +116,32 @@ until rows.empty?
 
   # sessions
   sessions[group] = [] unless sessions.key?(group)
-  sessions[group] << row
+  sessions[group].push(row)
 end
 
-database.execute(
-  'INSERT INTO job (client, description) VALUES (?, ?)',
-  [options[:database_client_id], options[:name]]
-)
-result = database.execute('SELECT MAX(id) FROM job')
+result = job_insert(database, options[:database_client_id], options[:name])
+
 job_id = result[0][0]
 
-sessions.each do |grouping, rows|
-  database.execute(
-    'INSERT INTO line_item (job, rate, description, fixed_price, fixed_price_amount) VALUES (?, ?, ?, ?, ?)',
-    [job_id, ENV['RATE_ID'], grouping, 0, 0]
-  )
-  result = database.execute('SELECT MAX(id) FROM line_item')
+sessions.each do |grouping, grouped_rows|
+  result = line_item_insert(database, job_id, ENV['RATE_ID'], grouping, 0, 0)
   line_item_id = result[0][0]
 
-  rows.each do |row|
-    start_time = Time.new(*row[7].split('-'), *row[8].split(':'))
-    end_time = Time.new(*row[9].split('-'), *row[10].split(':'))
-    database.execute(
-      'INSERT INTO session (line_item, description, start_time, end_time) VALUES (?, ?, ?, ?)',
-      [line_item_id, row[5], start_time.to_i, end_time.to_i]
+  grouped_rows.each do |grouped_row|
+    start_time = Time.new(
+      *grouped_row[7].split('-'),
+      *grouped_row[8].split(':')
+    )
+    end_time = Time.new(
+      *grouped_row[9].split('-'),
+      *grouped_row[10].split(':')
+    )
+    session_insert(
+      database,
+      line_item_id,
+      grouped_row[5],
+      start_time.to_i,
+      end_time.to_i
     )
   end
 end
