@@ -21,7 +21,7 @@ class Toggl
     workspace_id: ''
   }.freeze
 
-  base_uri 'https://toggl.com'
+  base_uri 'https://api.track.toggl.com'
 
   def self.get_with_auth(path, options = {}, &block)
     unless options.key?(:basic_auth)
