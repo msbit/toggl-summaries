@@ -124,6 +124,7 @@ result = job_insert(database, options[:database_client_id], options[:name])
 job_id = result[0][0]
 
 sessions.each do |grouping, grouped_rows|
+  grouping = nil if grouping == 'UNDEFINED'
   result = line_item_insert(database, job_id, ENV['RATE_ID'], grouping, 0, 0)
   line_item_id = result[0][0]
 
